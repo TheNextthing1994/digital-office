@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { StudioScene } from './components/StudioScene';
 import { Recorder } from './components/Recorder';
 import { useFirebase } from './components/FirebaseContext';
-import { generatePodcastScript, generateSpeech, askIntervention, formatCustomTextToScript, connectToLiveSession } from './services/geminiService';
+import { generatePodcastScript, generateSpeech, formatCustomTextToScript, connectToLiveSession } from './services/geminiService';
 import { PodcastScript, PersonaType, DialogueEntry } from './types';
 import { Sparkles, MessageSquare, Mic2, Play, Pause, RotateCcw, Send, Paperclip, X, FileText, ChevronRight, AlignLeft, Maximize2, Minimize2, Video, Square, Download, Trash2, Monitor, GripHorizontal } from 'lucide-react';
 

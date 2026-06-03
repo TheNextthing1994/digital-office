@@ -8,6 +8,8 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // Allow access through VS Code dev tunnels (and other *.devtunnels.ms hosts).
+        allowedHosts: ['.devtunnels.ms'],
       },
       plugins: [react()],
       define: {

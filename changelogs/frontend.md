@@ -1,5 +1,16 @@
 # Changelog - Frontend
 
+## 2026-06-03 - SPEC-GLOBAL-001 - Clean up AI Studio leftovers and enable dev-tunnel access
+
+- Branch/PR: `dev`
+- Work area: `frontend`
+- Impacted areas: None
+- Spec refs: SPEC-GLOBAL-001
+- Change request refs: None
+- Summary: Removed leftovers from the AI Studio origin: dropped the dead `<link rel="stylesheet" href="/index.css">` in `index.html` (the file never existed; styling comes from the Tailwind CDN and inline styles) and renamed the document `<title>` from "3D AI Podcast Creator" to "Digital Office"; removed the unused `askIntervention` import in `App.tsx` (live intervention uses `connectToLiveSession`). Added `allowedHosts: ['.devtunnels.ms']` to `vite.config.ts` so the app is reachable through VS Code dev tunnels for remote viewing.
+- Tests/validations: `npm run lint`, `npm run build`, `npm run validate` (all pass).
+- Human verification: App reloaded through the VS Code dev tunnel; loads without the index.css console error.
+- Manual operations: None
 ## 2026-06-03 - SPEC-GLOBAL-001 - Remove experimental 3D avatar prototype (Cowboy/Soldat)
 
 - Branch/PR: `dev`

@@ -140,66 +140,116 @@ service cloud.firestore {
       allow delete: if false; // Board config is permanent
     }
 
-    // --- VayBoard Validation Helpers ---
-    function isValidCardOnCreate(data) {
+    // --- VayBoard Validation Helpers (SPEC-TECH-001 hardened) ---
+    // Shared model: any verified user may read/write/delete. These helpers add
+    // schema/type/enum/size validation and reject foreign fields. Optional fields
+    // are checked only when present so partial creates/updates still succeed.
+    function isValidCardData(data) {
       return data.id is string && data.id.size() <= 128 &&
              data.title is string && data.title.size() <= 500 &&
-             data.sourceType is string && (data.sourceType == 'YOUTUBE' || data.sourceType == 'PDF' || data.sourceType == 'TEXT' || data.sourceType == 'VOICE' || data.sourceType == 'TEAM') &&
-             data.createdAt == request.time;
-    }
-    function isValidCardOnUpdate(data, prev) {
-      return data.id is string && data.id.size() <= 128 &&
-             data.title is string && data.title.size() <= 500 &&
-             data.sourceType is string &&
-             data.createdAt == prev.createdAt;
-    }
-
-    function isValidBoardOnCreate(data) {
-      return data.id is string && data.id.size() <= 128 &&
-             data.name is string && data.name.size() <= 200 &&
-             data.createdAt == request.time;
+             data.sourceType in ['YOUTUBE', 'PDF', 'TEXT', 'VOICE', 'TEAM'] &&
+             (!('sourceUrl' in data) || (data.sourceUrl is string && data.sourceUrl.size() <= 5000)) &&
+             (!('rawText' in data) || (data.rawText is string && data.rawText.size() <= 900000)) &&
+             (!('summary' in data) || (data.summary is string && data.summary.size() <= 200000)) &&
+             (!('projectRelevance' in data) || (data.projectRelevance is string && data.projectRelevance.size() <= 50000)) &&
+             (!('tags' in data) || (data.tags is list && data.tags.size() <= 500)) &&
+             (!('roles' in data) || (data.roles is list && data.roles.size() <= 500)) &&
+             (!('nextActions' in data) || (data.nextActions is list && data.nextActions.size() <= 500)) &&
+             (!('status' in data) || data.status in ['NEW', 'PROCESSED', 'ARCHIVED']) &&
+             (!('importance' in data) || data.importance in ['LOW', 'MEDIUM', 'HIGH']);
     }
 
-    function isValidBoardItemOnCreate(data) {
+    function isValidBoardItemData(data) {
       return data.id is string && data.id.size() <= 128 &&
              data.boardId is string && data.boardId.size() <= 128 &&
-             data.x is number && data.y is number;
+             data.x is number && data.y is number &&
+             (!('cardId' in data) || (data.cardId is string && data.cardId.size() <= 128)) &&
+             (!('width' in data) || data.width is number) &&
+             (!('height' in data) || data.height is number) &&
+             (!('groupId' in data) || (data.groupId is string && data.groupId.size() <= 128)) &&
+             (!('groupColor' in data) || (data.groupColor is string && data.groupColor.size() <= 500)) &&
+             (!('groupTitle' in data) || (data.groupTitle is string && data.groupTitle.size() <= 500)) &&
+             (!('connectedTo' in data) || (data.connectedTo is list && data.connectedTo.size() <= 1000));
     }
 
-    function isValidAgentEventOnCreate(data) {
+    function isValidAgentEventData(data) {
       return data.id is string && data.id.size() <= 128 &&
-             data.agent is string && (data.agent == 'STRATEGY' || data.agent == 'CREATIVE' || data.agent == 'OPERATIONS') &&
+             data.agent in ['STRATEGY', 'CREATIVE', 'OPERATIONS'] &&
              data.cardId is string && data.cardId.size() <= 128 &&
-             data.status is string &&
-             data.createdAt == request.time;
+             data.status in ['PENDING', 'PROCESSED'] &&
+             (!('triggerType' in data) || (data.triggerType is string && data.triggerType.size() <= 500)) &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 10000));
     }
 
-    // --- VayBoard Collections Rules ---
+    // --- VayBoard Collections Rules (SPEC-TECH-001 hardened) ---
     match /cards/{cardId} {
       allow read, list: if isVerified();
-      allow create: if isVerified() && isValidId(cardId) && isValidCardOnCreate(incoming());
-      allow update: if isVerified() && isValidId(cardId) && isValidCardOnUpdate(incoming(), existing());
+
+      allow create: if isVerified() && isValidId(cardId) &&
+                       incoming().keys().hasOnly(['id', 'title', 'sourceType', 'createdAt', 'updatedAt', 'sourceUrl', 'rawText', 'summary', 'tags', 'roles', 'projectRelevance', 'nextActions', 'status', 'importance']) &&
+                       isValidCardData(incoming()) &&
+                       incoming().createdAt == request.time &&
+                       incoming().updatedAt == request.time;
+
+      allow update: if isVerified() && isValidId(cardId) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['title', 'sourceType', 'sourceUrl', 'rawText', 'summary', 'tags', 'roles', 'projectRelevance', 'nextActions', 'status', 'importance', 'updatedAt']) &&
+                       isValidCardData(incoming()) &&
+                       incoming().id == existing().id &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt == request.time;
+
       allow delete: if isVerified() && isValidId(cardId);
     }
 
     match /boards/{boardId} {
       allow read, list: if isVerified();
-      allow create: if isVerified() && isValidId(boardId) && isValidBoardOnCreate(incoming());
-      allow update: if isVerified() && isValidId(boardId);
+
+      allow create: if isVerified() && isValidId(boardId) &&
+                       incoming().keys().hasOnly(['id', 'name', 'createdAt']) &&
+                       incoming().id is string && incoming().id.size() <= 128 &&
+                       incoming().name is string && incoming().name.size() <= 200 &&
+                       incoming().createdAt == request.time;
+
+      allow update: if isVerified() && isValidId(boardId) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['name']) &&
+                       incoming().name is string && incoming().name.size() <= 200 &&
+                       incoming().id == existing().id &&
+                       incoming().createdAt == existing().createdAt;
+
       allow delete: if isVerified() && isValidId(boardId);
     }
 
     match /boardItems/{itemId} {
       allow read, list: if isVerified();
-      allow create: if isVerified() && isValidId(itemId) && isValidBoardItemOnCreate(incoming());
-      allow update: if isVerified() && isValidId(itemId);
+
+      allow create: if isVerified() && isValidId(itemId) &&
+                       incoming().keys().hasOnly(['id', 'boardId', 'x', 'y', 'cardId', 'width', 'height', 'groupId', 'groupColor', 'groupTitle', 'connectedTo']) &&
+                       isValidBoardItemData(incoming());
+
+      allow update: if isVerified() && isValidId(itemId) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['boardId', 'x', 'y', 'cardId', 'width', 'height', 'groupId', 'groupColor', 'groupTitle', 'connectedTo']) &&
+                       isValidBoardItemData(incoming()) &&
+                       incoming().id == existing().id;
+
       allow delete: if isVerified() && isValidId(itemId);
     }
 
     match /agentEvents/{eventId} {
       allow read, list: if isVerified();
-      allow create: if isVerified() && isValidId(eventId) && isValidAgentEventOnCreate(incoming());
-      allow update: if isVerified() && isValidId(eventId);
+
+      allow create: if isVerified() && isValidId(eventId) &&
+                       incoming().keys().hasOnly(['id', 'agent', 'cardId', 'status', 'createdAt', 'triggerType', 'description']) &&
+                       isValidAgentEventData(incoming()) &&
+                       incoming().createdAt == request.time;
+
+      allow update: if isVerified() && isValidId(eventId) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['status']) &&
+                       incoming().status in ['PENDING', 'PROCESSED'] &&
+                       incoming().id == existing().id &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().agent == existing().agent &&
+                       incoming().cardId == existing().cardId;
+
       allow delete: if isVerified() && isValidId(eventId);
     }
   }

@@ -9,6 +9,24 @@
       "parent": null,
       "depends_on": [],
       "related_specs": []
+    },
+    {
+      "id": "SPEC-FEATURE-001",
+      "path": "specs/accepted/SPEC-FEATURE-001-shared-collaborative-workspace-data.md",
+      "type": "FeatureSpec",
+      "status": "Accepted",
+      "parent": "SPEC-GLOBAL-001",
+      "depends_on": ["SPEC-GLOBAL-001"],
+      "related_specs": []
+    },
+    {
+      "id": "SPEC-TECH-001",
+      "path": "specs/accepted/SPEC-TECH-001-firestore-data-model-and-security-rules.md",
+      "type": "TechnicalSpec",
+      "status": "Accepted",
+      "parent": null,
+      "depends_on": ["SPEC-FEATURE-001"],
+      "related_specs": ["SPEC-GLOBAL-001"]
     }
   ]
 }

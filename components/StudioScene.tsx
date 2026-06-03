@@ -6,8 +6,6 @@ import { OrbitControls, Text, RoundedBox, ContactShadows, Float, MeshReflectorMa
 import { XR, createXRStore, useXR, useXRInputSourceState, XROrigin } from '@react-three/xr';
 import * as THREE from 'three';
 import { PersonaType } from '../types';
-import { Cowboy } from './Cowboy';
-import { Soldier } from './Soldier';
 
 // Typ-Erweiterung für JSX-Intrinsics
 declare global {
@@ -788,14 +786,6 @@ const SceneContent = ({
         isPunching={false}
         visible={true}
       />
-
-      <React.Suspense fallback={null}>
-        <Cowboy isDayMode={isDayMode} />
-      </React.Suspense>
-
-      <React.Suspense fallback={null}>
-        <Soldier isDayMode={isDayMode} />
-      </React.Suspense>
 
       {/* 3D Open Board Prompt */}
       {isNearTable && !isBoardOpen && isVRActive && (

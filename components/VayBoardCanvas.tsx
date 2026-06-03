@@ -493,9 +493,9 @@ export const VayBoardCanvas: React.FC = () => {
                 className="bg-slate-800 border border-slate-700 text-slate-200 rounded px-1.5 py-0.5 outline-none font-medium"
               >
                 <option value="ALL">Alle Aufgabenbereiche</option>
-                <option value="STRATEGY">Strategy-Manager (Cowboy)</option>
+                <option value="STRATEGY">Strategy-Manager</option>
                 <option value="CREATIVE">Kreativ-Agent</option>
-                <option value="OPERATIONS">Operations-Agent (Soldat)</option>
+                <option value="OPERATIONS">Operations-Agent</option>
               </select>
             </div>
           </div>
@@ -1146,7 +1146,7 @@ export const VayBoardCanvas: React.FC = () => {
                       <Cpu className="w-5 h-5 text-amber-400" />
                       Spatial Agents Intelligence Feed
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">Hier reagieren der <b>Strategie-Manager (Cowboy)</b>, der <b>Kreativ-Agent</b> und der <b>Operations-Agent (Soldat)</b> live auf neu erfasstes Wissen.</p>
+                    <p className="text-xs text-slate-400 mt-1">Hier reagieren der <b>Strategie-Manager</b>, der <b>Kreativ-Agent</b> und der <b>Operations-Agent</b> live auf neu erfasstes Wissen.</p>
                   </div>
                   <button 
                     onClick={() => {
@@ -1180,7 +1180,7 @@ export const VayBoardCanvas: React.FC = () => {
                             {event.agent[0]}
                           </div>
                           <span className="text-[8px] font-bold text-slate-400 font-mono mt-1 w-16 text-center truncate">
-                            {event.agent === 'STRATEGY' ? 'COWBOY' : event.agent === 'CREATIVE' ? 'CREATIVE' : 'SOLDAT'}
+                            {event.agent === 'STRATEGY' ? 'STRATEGY' : event.agent === 'CREATIVE' ? 'CREATIVE' : 'OPERATIONS'}
                           </span>
                         </div>
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Review Triage"
+  short_description: "Binary triage of spec review findings"
+  default_prompt: "Use $sdd-review-triage to decide which agent-review findings to take into account in the current draft spec."

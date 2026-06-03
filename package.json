@@ -1,0 +1,15 @@
+{
+  "name": "digital-office",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Digital Office specification-driven project.",
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "validate:pre-commit": "node scripts/validate.js --mode pre-commit",
+    "validate:pre-push": "node scripts/validate.js --mode pre-push",
+    "validate:ci": "node scripts/validate.js --mode ci",
+    "review:hook": "node scripts/spec-review-hook.js",
+    "hooks:install": "sh scripts/install-hooks.sh",
+    "client:init": "node scripts/init-client-project.js"
+  }
+}

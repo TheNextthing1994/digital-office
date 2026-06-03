@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/spec-review-hook.js\" --provider codex",
+            "timeout": 30,
+            "statusMessage": "Checking whether specs need isolated subagent review"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/spec-review-hook.js\" --provider codex",
+            "timeout": 30,
+            "statusMessage": "Checking unresolved isolated spec reviews"
+          }
+        ]
+      }
+    ]
+  }
+}
+

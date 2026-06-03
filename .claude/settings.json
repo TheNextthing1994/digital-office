@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "agent",
+            "timeout": 180,
+            "prompt": "You are the isolated specification review subagent for this repository. Hook input: $ARGUMENTS\n\nIf the tool did not create or modify a specs/draft/SPEC-*.md or specs/draft/CR-*.md file, return {\"ok\": true}. If it did, review the changed Draft spec or Draft Change Request independently. Read docs/conventions.md, docs/agent-review-hooks.md, specs/accepted/manifest.json, accepted specs referenced by the target, raw project knowledge if present and relevant, other specs and code if needed. Append or replace the final <!-- agent-review:start --> ... <!-- agent-review:end --> block in the target document. The block must include reviewer: isolated-subagent, review_trigger: claude-code-hook, reviewed_at: YYYY-MM-DD and reviewed_content_sha256 before ## Agent Review Notes. reviewed_content_sha256 is the SHA-256 hash of the document content after removing the agent-review block. Notes must be specific and cover Suggested Specs, Open Questions, Grey Areas, Potential Problems, Contradictions, Logic Weaknesses and Regression Risks. Do not mark specs or Change Requests Accepted and do not update manifest. Return {\"ok\": true} only after the review block has been written."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/scripts/spec-review-hook.js\" --provider claude",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,5 +1,17 @@
 # Changelog - Repository
 
+## 2026-06-03 - SPEC-GLOBAL-001 - Publish repository to GitHub
+
+- Branch/PR: `dev`
+- Work area: `repository`
+- Impacted areas: None
+- Spec refs: SPEC-GLOBAL-001
+- Change request refs: None
+- Summary: Created a public GitHub repository `TheNextthing1994/digital-office` and pushed `main` and `dev`. A secret scan confirmed no credentials are tracked (`.env.local` is gitignored; the real Gemini key is in no commit). The committed `firebase-applet-config.json` is the public Firebase web config. Follow-ups: restrict the Firebase web API key and harden the Firestore rules.
+- Tests/validations: `npm run validate`
+- Human verification: Repository visible on GitHub with both branches.
+- Manual operations: `gh repo create digital-office --public`; `git push -u origin main`; `git push -u origin dev`.
+
 ## 2026-06-03 - SPEC-GLOBAL-001 - Bootstrap import of Digital Office product baseline
 
 - Branch/PR: `dev`

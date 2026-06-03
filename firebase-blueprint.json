@@ -1,0 +1,145 @@
+{
+  "entities": {
+    "PinnwandNote": {
+      "title": "Pinnwand Note",
+      "description": "A note or task or process note on the shared Pinnwand and Kalender",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "category": { "type": "string", "enum": ["NOTE", "TASK", "PROCESS", "KPI", "FOKUS"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "dateLabel": { "type": "string" },
+        "weekNumber": { "type": "integer" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" }
+      },
+      "required": ["id", "text", "category", "createdAt", "dateLabel", "weekNumber", "userId"]
+    },
+    "WhiteboardNote": {
+      "title": "Whiteboard Sticky Note",
+      "description": "A collaborative post-it sticky note on the shared 3D and 2D Whiteboard",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "color": { "type": "string" },
+        "x": { "type": "number" },
+        "z": { "type": "number" },
+        "rotationZ": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" }
+      },
+      "required": ["id", "text", "color", "x", "z", "rotationZ", "createdAt", "userId"]
+    },
+    "WhiteboardConfig": {
+      "title": "Whiteboard Central Document",
+      "description": "A collection storing the persistent central text of the shared whiteboard",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "lastUpdatedBy": { "type": "string" }
+      },
+      "required": ["text", "updatedAt"]
+    },
+    "VayBoardCard": {
+      "title": "VayBoard Knowledge Card",
+      "description": "An intelligent analyzed piece of knowledge",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "sourceType": { "type": "string", "enum": ["YOUTUBE", "PDF", "TEXT", "VOICE", "TEAM"] },
+        "sourceUrl": { "type": "string" },
+        "rawText": { "type": "string" },
+        "summary": { "type": "string" },
+        "tags": { "type": "array" },
+        "roles": { "type": "array" },
+        "projectRelevance": { "type": "string" },
+        "nextActions": { "type": "array" },
+        "status": { "type": "string", "enum": ["NEW", "PROCESSED", "ARCHIVED"] },
+        "importance": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "sourceType", "createdAt"]
+    },
+    "VayBoardBoard": {
+      "title": "VayBoard Board",
+      "description": "A container workspace canvas for cards",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "createdAt"]
+    },
+    "VayBoardBoardItem": {
+      "title": "VayBoard Board Item",
+      "description": "Defines location, grouping, and connections for cards on a board",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "boardId": { "type": "string" },
+        "cardId": { "type": "string" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "groupId": { "type": "string" },
+        "groupColor": { "type": "string" },
+        "groupTitle": { "type": "string" },
+        "connectedTo": { "type": "array" }
+      },
+      "required": ["id", "boardId", "x", "y"]
+    },
+    "VayBoardAgentEvent": {
+      "title": "VayBoard Agent Event",
+      "description": "Automated trigger notifications for specific strategic, creative, or operations agents",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "agent": { "type": "string", "enum": ["STRATEGY", "CREATIVE", "OPERATIONS"] },
+        "triggerType": { "type": "string" },
+        "cardId": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "PROCESSED"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "agent", "cardId", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/pinnwand_notes/{noteId}": {
+      "schema": "PinnwandNote",
+      "description": "Collaborative interactive notes on Pinnwand board"
+    },
+    "/whiteboard_notes/{noteId}": {
+      "schema": "WhiteboardNote",
+      "description": "Sticky notes brainstorming board database"
+    },
+    "/whiteboard_config/{configId}": {
+      "schema": "WhiteboardConfig",
+      "description": "Central persistent rich whiteboard main summary document"
+    },
+    "/cards/{cardId}": {
+      "schema": "VayBoardCard",
+      "description": "Knowledge card database"
+    },
+    "/boards/{boardId}": {
+      "schema": "VayBoardBoard",
+      "description": "Milanote style custom canvas boards database"
+    },
+    "/boardItems/{itemId}": {
+      "schema": "VayBoardBoardItem",
+      "description": "Positions and visual metadata of cards in canvas workspace"
+    },
+    "/agentEvents/{eventId}": {
+      "schema": "VayBoardAgentEvent",
+      "description": "Agent triggered events based on newly synthesized research data"
+    }
+  }
+}

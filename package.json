@@ -4,6 +4,10 @@
   "private": true,
   "description": "Digital Office specification-driven project.",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit",
     "validate": "node scripts/validate.js",
     "validate:pre-commit": "node scripts/validate.js --mode pre-commit",
     "validate:pre-push": "node scripts/validate.js --mode pre-push",
@@ -11,5 +15,26 @@
     "review:hook": "node scripts/spec-review-hook.js",
     "hooks:install": "sh scripts/install-hooks.sh",
     "client:init": "node scripts/init-client-project.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.34.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
+    "@react-three/xr": "^6.6.29",
+    "firebase": "^12.13.0",
+    "lucide-react": "^0.561.0",
+    "motion": "^12.40.0",
+    "nipplejs": "^1.0.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "recharts": "^3.8.1",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "@firebase/eslint-plugin-security-rules": "^0.0.2",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
   }
 }

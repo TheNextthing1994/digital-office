@@ -1,0 +1,206 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Primitives ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Pinnwand Validation Helpers ---
+    function isValidPinnwandNoteOnCreate(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.text is string && data.text.size() <= 1000 &&
+             data.category is string && (data.category == 'NOTE' || data.category == 'TASK' || data.category == 'PROCESS' || data.category == 'KPI' || data.category == 'FOKUS') &&
+             data.createdAt == request.time &&
+             data.dateLabel is string && data.dateLabel.size() <= 100 &&
+             data.weekNumber is int &&
+             data.userId == request.auth.uid &&
+             data.userEmail is string && data.userEmail.size() <= 200;
+    }
+
+    function isValidPinnwandNoteOnUpdate(data, prev) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.text is string && data.text.size() <= 1000 &&
+             data.category is string && (data.category == 'NOTE' || data.category == 'TASK' || data.category == 'PROCESS' || data.category == 'KPI' || data.category == 'FOKUS') &&
+             data.createdAt == prev.createdAt &&
+             data.dateLabel is string && data.dateLabel.size() <= 100 &&
+             data.weekNumber is int &&
+             data.userId == prev.userId &&
+             data.userEmail is string && data.userEmail.size() <= 200;
+    }
+
+    // --- Whiteboard Note Validation Helpers ---
+    function isValidWhiteboardNoteOnCreate(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.text is string && data.text.size() <= 500 &&
+             data.color is string && data.color.size() <= 30 &&
+             data.x is number &&
+             data.z is number &&
+             data.rotationZ is number &&
+             data.createdAt == request.time &&
+             data.userId == request.auth.uid &&
+             data.userEmail is string && data.userEmail.size() <= 200;
+    }
+
+    // --- Whiteboard Note Validation Helpers ---
+    function isValidWhiteboardNoteOnUpdate(data, prev) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.text is string && data.text.size() <= 500 &&
+             data.color is string && data.color.size() <= 30 &&
+             data.x is number &&
+             data.z is number &&
+             data.rotationZ is number &&
+             data.createdAt == prev.createdAt &&
+             data.userId == prev.userId &&
+             data.userEmail is string && data.userEmail.size() <= 200;
+    }
+
+    // --- Whiteboard Config Validation Helpers ---
+    function isValidWhiteboardConfigOnCreate(data) {
+      return data.text is string && data.text.size() <= 50000 &&
+             data.updatedAt == request.time &&
+             data.lastUpdatedBy is string && data.lastUpdatedBy.size() <= 200;
+    }
+
+    function isValidWhiteboardConfigOnUpdate(data, prev) {
+      return data.text is string && data.text.size() <= 50000 &&
+             data.updatedAt == request.time &&
+             data.lastUpdatedBy is string && data.lastUpdatedBy.size() <= 200;
+    }
+
+    // --- 2. Pinnwand Notes Collection Rules ---
+    match /pinnwand_notes/{noteId} {
+      allow read, list: if isVerified();
+      
+      allow create: if isVerified() && 
+                       isValidId(noteId) && 
+                       isValidPinnwandNoteOnCreate(incoming());
+                       
+      allow update: if isVerified() && 
+                       isValidId(noteId) && 
+                       isValidPinnwandNoteOnUpdate(incoming(), existing()) && 
+                       incoming().diff(existing()).affectedKeys().hasOnly(['text', 'category', 'dateLabel', 'weekNumber', 'tags']);
+                       
+      allow delete: if isVerified() && 
+                       isValidId(noteId);
+    }
+
+    // --- 3. Whiteboard Notes Collection Rules ---
+    match /whiteboard_notes/{noteId} {
+      allow read, list: if isVerified();
+      
+      allow create: if isVerified() && 
+                       isValidId(noteId) && 
+                       isValidWhiteboardNoteOnCreate(incoming());
+                       
+      allow update: if isVerified() && 
+                       isValidId(noteId) && 
+                       isValidWhiteboardNoteOnUpdate(incoming(), existing()) && 
+                       incoming().diff(existing()).affectedKeys().hasOnly(['x', 'z', 'rotationZ', 'text', 'color']);
+                       
+      allow delete: if isVerified() && 
+                       isValidId(noteId);
+    }
+
+    // --- 4. Whiteboard Central Config Rules ---
+    match /whiteboard_config/{configId} {
+      allow read, list: if isVerified();
+      
+      allow create: if isVerified() && 
+                       isValidId(configId) && 
+                       isValidWhiteboardConfigOnCreate(incoming());
+                       
+      allow update: if isVerified() && 
+                       isValidId(configId) && 
+                       isValidWhiteboardConfigOnUpdate(incoming(), existing()) && 
+                       incoming().diff(existing()).affectedKeys().hasOnly(['text', 'updatedAt', 'lastUpdatedBy']);
+                       
+      allow delete: if false; // Board config is permanent
+    }
+
+    // --- VayBoard Validation Helpers ---
+    function isValidCardOnCreate(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.sourceType is string && (data.sourceType == 'YOUTUBE' || data.sourceType == 'PDF' || data.sourceType == 'TEXT' || data.sourceType == 'VOICE' || data.sourceType == 'TEAM') &&
+             data.createdAt == request.time;
+    }
+    function isValidCardOnUpdate(data, prev) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.sourceType is string &&
+             data.createdAt == prev.createdAt;
+    }
+
+    function isValidBoardOnCreate(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.createdAt == request.time;
+    }
+
+    function isValidBoardItemOnCreate(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.boardId is string && data.boardId.size() <= 128 &&
+             data.x is number && data.y is number;
+    }
+
+    function isValidAgentEventOnCreate(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.agent is string && (data.agent == 'STRATEGY' || data.agent == 'CREATIVE' || data.agent == 'OPERATIONS') &&
+             data.cardId is string && data.cardId.size() <= 128 &&
+             data.status is string &&
+             data.createdAt == request.time;
+    }
+
+    // --- VayBoard Collections Rules ---
+    match /cards/{cardId} {
+      allow read, list: if isVerified();
+      allow create: if isVerified() && isValidId(cardId) && isValidCardOnCreate(incoming());
+      allow update: if isVerified() && isValidId(cardId) && isValidCardOnUpdate(incoming(), existing());
+      allow delete: if isVerified() && isValidId(cardId);
+    }
+
+    match /boards/{boardId} {
+      allow read, list: if isVerified();
+      allow create: if isVerified() && isValidId(boardId) && isValidBoardOnCreate(incoming());
+      allow update: if isVerified() && isValidId(boardId);
+      allow delete: if isVerified() && isValidId(boardId);
+    }
+
+    match /boardItems/{itemId} {
+      allow read, list: if isVerified();
+      allow create: if isVerified() && isValidId(itemId) && isValidBoardItemOnCreate(incoming());
+      allow update: if isVerified() && isValidId(itemId);
+      allow delete: if isVerified() && isValidId(itemId);
+    }
+
+    match /agentEvents/{eventId} {
+      allow read, list: if isVerified();
+      allow create: if isVerified() && isValidId(eventId) && isValidAgentEventOnCreate(incoming());
+      allow update: if isVerified() && isValidId(eventId);
+      allow delete: if isVerified() && isValidId(eventId);
+    }
+  }
+}

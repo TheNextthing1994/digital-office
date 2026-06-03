@@ -1,0 +1,9 @@
+{
+  "name": "Konferenz HUB",
+  "description": "An interactive AI-powered podcast generator with a 3D studio environment, featuring a structured debate between a skeptic, an enthusiast, and a logical sage grounded in ethics.",
+  "requestFramePermissions": [
+    "microphone",
+    "xr-spatial-tracking"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

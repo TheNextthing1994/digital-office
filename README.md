@@ -1,8 +1,23 @@
 # Digital Office
 
-This repository was initialized from the Specification-Driven Development template.
+This repository was initialized from the Specification-Driven Development template. It now also hosts the Digital Office product application (a 3D AI workspace), imported as the as-built baseline from a Google AI Studio export. SDD governance and the product code live side by side: governance lives in `specs/`, `plans/`, `changelogs/`, `docs/`, `templates/`, `scripts/` and `hooks/`; the product lives at the repository root (`App.tsx`, `index.tsx`, `components/`, `services/`, `public/`).
+
+## Local App
+
+The product is a React 19 + TypeScript + Vite app using Three.js, Firebase and the Gemini API.
+
+**Prerequisites:** Node.js.
+
+1. Install dependencies: `npm install`
+2. Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` to your Gemini API key.
+3. Run the app: `npm run dev`
+4. Type-check / build: `npm run lint` and `npm run build`.
 
 ## First Step
+
+> Note: the as-built baseline import and the first Global Spec are already in place. The instructions below are the template's default first-run guidance.
+
+Fill the active raw knowledge file:
 
 Fill the active raw knowledge file:
 
